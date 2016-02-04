@@ -1,0 +1,222 @@
+<script type="text/javascript">
+jQuery(function($) {
+   
+   $( "#accordion" ).accordion({heightStyle: "fill"});
+   
+    $("#soldiersPerSquad").prop ("disabled", true);   
+    
+    $("#row2").hide();
+    $("#row3").hide();
+    $("#row4").hide();
+    $("#row5").hide();
+    
+    //Setup Variables
+    var numberOfSquads = Number($("#numberOfSquads").val()); //this will change in the future - get from page
+    var soldiersPerSquad = Number($("#soldiersPerSquad").val()); //this will change in the future - get from page
+    
+    var holderArray = [];
+    var doubleNumberArray = ["Zero", "One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine"];
+    var singleNumberArray = ["One","Two","Three","Four","Five", "Six", "Seven", "Eight", "Nine", "Ten", "Eleven", "Twelve", "Thirteen", "Fourteen", "Fifteen", "Sixteen", "Seventeen", "Eighteen", "Nineteen", "Twenty", "Twenty-One", "Twenty-Two", "Twenty-Three", "Twenty-Four", "Twenty-Five", "Twenty-Six", "Twenty-Seven", "Twenty-Eight", "Twenty-Nine", "Thirty", "Thirty-One", "Thirty-Two", "Thirty-Three", "Thirty-Four", "Thirty-Five", "Thirty-Six", "Thirty-Seven", "Thirty-Eight", "Thirty-Nine", "Fourty", "Fourty-One", "Fourty-Two", "Fourty-Three", "Fourty-Four", "Fourty-Five", "Fourty-Six", "Fourty-Seven", "Fourty-Eight", "Fourty-Nine", "Fifty"];
+
+    var numberOfLoops = numberOfSquads * soldiersPerSquad; //this is how many soldiers we are building for
+    var unitCounter = 1;
+    var tenCounter = 0;
+
+    $("#numberOfSquads").change(function (){
+    
+        if ($(this).val() == "1")
+        {
+            //Store user entered squad names
+            holderArray[0] = $("#callSign0").val();	
+            holderArray[1] = $("#callSign1").val();
+            holderArray[2] = $("#callSign2").val();
+            holderArray[3] = $("#callSign3").val();
+            holderArray[4] = $("#callSign4").val();
+        
+            //Change squad 1 name to All
+            //Hide squads 2- 5
+            $("#squadOneAll").text('All');
+            $("#row2").hide();
+            $("#row3").hide();
+            $("#row4").hide();
+            $("#row5").hide();
+            
+            $("#soldiersPerSquad").prop ("disabled", true);
+            $("#soldiersPerSquad").addClass("disabled");
+        }
+        else
+        {
+            //Show Squads 2 - 5
+            $("#squadOneAll").text('1');
+            $("#row2").show();
+            $("#row3").show();
+            $("#row4").show();
+            $("#row5").show();
+        
+            //If user has already started adding names to Squads, readd them
+            $("#callSign1").val(holderArray[1]);
+            $("#callSign2").val(holderArray[2]);
+            $("#callSign3").val(holderArray[3]);
+            $("#callSign4").val(holderArray[4]);
+            
+            $("#soldiersPerSquad").prop ("disabled", false);
+            $("#soldiersPerSquad").removeClass("disabled");
+        }
+    });
+    
+    $("#presets").change(function ()
+    {	
+        if ($(this).val() == "none")
+        {
+            $("#callSign0").val('');
+            $("#callSign1").val('');
+            $("#callSign2").val('');
+            $("#callSign3").val('');
+            $("#callSign4").val('');
+        }
+        if ($(this).val() == "nato")
+        {
+            $("#callSign0").val('Alpha');
+            $("#callSign1").val('Bravo');
+            $("#callSign2").val('Charlie');
+            $("#callSign3").val('Delta');
+            $("#callSign4").val('Echo');
+        }
+        else if ($(this).val() == "wwii")
+        {
+            $("#callSign0").val('Able');
+            $("#callSign1").val('Baker');
+            $("#callSign2").val('Charlie');
+            $("#callSign3").val('Dog');
+            $("#callSign4").val('Easy');
+        }
+        else if ($(this).val() == "police")
+        {
+            $("#callSign0").val('Adam');
+            $("#callSign1").val('Boy');
+            $("#callSign2").val('Charles');
+            $("#callSign3").val('David');
+            $("#callSign4").val('Edward');
+        }
+    });
+    
+    //Build the XML when the Submit button is clicked
+    $("#submitButton").click(function (e) {
+        checkAllBoxonSubmit();
+        $("#codePrint").val('');
+        
+        for (var i=1; i < (numberOfLoops + 1); i++)
+        {	
+            if($("#numberOfSquads").val() == "1")
+            {		
+                if ($("#wordCount").val() == "one")
+                {
+                    $("#codePrint").val($("#codePrint").val() + '<command name="Select Soldier ' + i +'" phrase="' + $("#callSign" + tenCounter).val() + ' ' + singleNumberArray[i - 1] + '" soundcom="0" category="Unit Selection">\n');	
+                }
+    			else if ($("#wordCount").val() == "two")
+    			{
+    				if (i < 10)
+    				{
+    					$("#codePrint").val($("#codePrint").val() + '<command name="Select Soldier ' + i +'" phrase="' + $("#callSign" + tenCounter).val() + ' ' + singleNumberArray[i - 1] + '" soundcom="0" category="Unit Selection">\n');
+    				}
+    				else if ((i >= 10) && (unitCounter === 0))
+    				{
+    					$("#codePrint").val($("#codePrint").val() + '<command name="Select Soldier ' + i +'" phrase="' + $("#callSign" + tenCounter).val() + ' ' + doubleNumberArray[tenCounter + 1] + ' ' + doubleNumberArray[unitCounter] + '" soundcom="0" category="Unit Selection">\n');
+    				}
+    				else if ((i >= 10) && (unitCounter !== 0))
+    				{
+    					$("#codePrint").val($("#codePrint").val() + '<command name="Select Soldier ' + i +'" phrase="' + $("#callSign" + tenCounter).val() + ' ' + doubleNumberArray[tenCounter] + ' ' + doubleNumberArray[unitCounter] + '" soundcom="0" category="Unit Selection">\n');
+    				}
+    			}
+    		}
+    		//Callsign changes each time and number resets to 1
+    		else if ($("#numberOfSquads").val() != "1")
+    		{
+    			if (unitCounter === 0)
+    			{
+    				if ($("#wordCount").val() == "one")
+    				{
+    					$("#codePrint").val($("#codePrint").val() + '<command name="Select Soldier ' + i +'" phrase="' + $("#callSign" + tenCounter).val() + ' ' + singleNumberArray[9] + '" soundcom="0" category="Unit Selection">\n');
+    				}
+    				else if ($("#wordCount").val() == "two")
+    				{
+    					//When multiple squads are displayed and the counter reaches 10, the doubleNumberArray[1] (One) needs be displayed.
+    					$("#codePrint").val($("#codePrint").val() + '<command name="Select Soldier ' + i +'" phrase="' + $("#callSign" + tenCounter).val() + ' ' + doubleNumberArray[1] + ' ' + doubleNumberArray[unitCounter] + '" soundcom="0" category="Unit Selection">\n');
+    				}
+    			}
+    			else
+    			{
+    			    if ($("#wordCount").val() == "one")
+    				{
+    			        $("#codePrint").val($("#codePrint").val() + '<command name="Select Soldier ' + i +'" phrase="' + $("#callSign" + tenCounter).val() + ' ' + singleNumberArray[unitCounter - 1] + '" soundcom="0" category="Unit Selection">\n');
+    				}
+    				else if ($("#wordCount").val() == "two")
+    				{
+    					//When multiple squads are displayed and the counter reaches 10, the doubleNumberArray[1] (One) needs be displayed.
+    					$("#codePrint").val($("#codePrint").val() + '<command name="Select Soldier ' + i +'" phrase="' + $("#callSign" + tenCounter).val() + ' ' + doubleNumberArray[0] + ' ' + doubleNumberArray[unitCounter] + '" soundcom="0" category="Unit Selection">\n');
+    				}
+    			}
+    		}
+    		
+    		for (var j=0; j < 4; j++)
+    		{
+    			$("#codePrint").val($("#codePrint").val() + '<key description="NONE + F11 + NONE + &quot;&quot;" extended="F11" extended2="NONE" qual="NONE" pause="25" repeat="1" duration="50"/>\n');
+    		}
+    		
+    		//Add F12 as needed
+    		addFunctionTwelve(tenCounter, unitCounter);
+
+            //When F10 is needed, we need to add the '1' to the beginning of the unitCounter
+            if (unitCounter === 0)
+            {
+                $("#codePrint").val($("#codePrint").val() + '<key description="NONE + F1' + (unitCounter) + ' + NONE + &quot;&quot;" extended="F1' + (unitCounter) + '" extended2="NONE" qual="NONE" pause="25" repeat="1" duration="50"/>\n');	
+            }
+            else
+            {
+                $("#codePrint").val($("#codePrint").val() + '<key description="NONE + F' + (unitCounter) + ' + NONE + &quot;&quot;" extended="F' + (unitCounter) + '" extended2="NONE" qual="NONE" pause="25" repeat="1" duration="50"/>\n');
+            }
+            $("#codePrint").val($("#codePrint").val() + '</command>\n');
+
+            //0 means 10,20,30,40	
+            if (unitCounter === 0)
+            {
+                tenCounter++;
+            }
+            
+            unitCounter++; 
+            
+            if (unitCounter > 9)
+            {
+                unitCounter = 0;
+            }
+        }
+    });
+    
+    //Function adds F12 to key command for numbers above 11. If number(modifier) is 0 (ex. 10, 20,30)
+    //then 1 less F12 is added
+    function addFunctionTwelve(loops, modifier)
+    {	
+        for (var k=0; k < loops; k++)
+        {
+            $("#codePrint").val($("#codePrint").val() + '<key description="NONE + F12 + NONE + &quot;&quot;" extended="F12" extended2="NONE" qual="NONE" pause="25" repeat="1" duration="50"/>\n');
+        }
+    }
+    
+    function checkAllBoxonSubmit()
+    {
+        if ($("#numberOfSquads").val() == "1")
+        {
+            //All box is checked/true
+            //Make all squads the same name as Squad 1/All
+            $("#callSign1").val($("#callSign0").val());
+            $("#callSign2").val($("#callSign0").val());
+            $("#callSign3").val($("#callSign0").val());
+            $("#callSign4").val($("#callSign0").val());
+        }
+        else
+        {
+            //All box is not checked/false
+        }
+    }
+});
+</script>
